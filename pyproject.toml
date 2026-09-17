@@ -1,0 +1,15 @@
+[project]
+name = "linux-system-health-toolkit"
+version = "1.0.0"
+description = "Toolkit de relatórios de saúde de sistemas Linux"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "Lucas Mesquita" }]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

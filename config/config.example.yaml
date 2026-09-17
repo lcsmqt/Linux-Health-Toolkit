@@ -1,0 +1,11 @@
+thresholds:
+  cpu_percent: 85.0
+  memory_percent: 85.0
+  disk_percent: 90.0
+  auth_failures_window: 50
+
+auth_log_path: /var/log/auth.log
+collect_services: true
+collect_auth: true
+collect_network: true
+hostname_override: null
