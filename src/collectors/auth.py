@@ -9,16 +9,20 @@ from src.models import AuthFailure
 
 AUTH_PATTERNS = [
     re.compile(
-        r"^(?P<ts>\w+\s+\d+\s+\d+:\d+:\d+).*(Failed password|authentication failure)"
-        r".*(?:for(?: invalid user)? (?P<user>\S+))?.*(?:from (?P<source>\S+))?",
+        r"^(?P<ts>\w+\s+\d+\s+\d+:\d+:\d+).*(?:Failed password|authentication failure)",
         re.IGNORECASE,
     ),
     re.compile(
-        r"^(?P<ts>\d{4}-\d{2}-\d{2}T[\d:.+-]+).*(Failed password|authentication failure)"
-        r".*(?:for(?: invalid user)? (?P<user>\S+))?.*(?:from (?P<source>\S+))?",
+        r"^(?P<ts>\d{4}-\d{2}-\d{2}T[\d:.+-]+).*(?:Failed password|authentication failure)",
         re.IGNORECASE,
     ),
 ]
+
+# Extraidos separadamente do restante da linha: um .* voraz antes de um grupo
+# opcional nunca "sobra" caracteres para o grupo opcional casar, entao usuario
+# e origem sao buscados com regexes proprias em vez de ficarem dentro do padrao acima.
+USER_PATTERN = re.compile(r"for(?: invalid user)? (?P<user>\S+)", re.IGNORECASE)
+SOURCE_PATTERN = re.compile(r"from (?P<source>\S+)", re.IGNORECASE)
 
 
 def collect_auth_failures(log_path: str, limit: int = 50) -> list[AuthFailure]:
@@ -37,11 +41,13 @@ def collect_auth_failures(log_path: str, limit: int = 50) -> list[AuthFailure]:
             match = pattern.search(line)
             if not match:
                 continue
+            user_match = USER_PATTERN.search(line)
+            source_match = SOURCE_PATTERN.search(line)
             failures.append(
                 AuthFailure(
                     timestamp=match.group("ts") or "",
-                    source=match.groupdict().get("source") or "unknown",
-                    username=match.groupdict().get("user") or "unknown",
+                    source=source_match.group("source") if source_match else "unknown",
+                    username=user_match.group("user") if user_match else "unknown",
                     message=line.strip()[:300],
                 )
             )
