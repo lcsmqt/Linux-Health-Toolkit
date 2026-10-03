@@ -1,12 +1,11 @@
-from src.reports.json_report import render_json
-from src.reports.markdown_report import render_markdown
-
 from src.models import (
     CpuMetrics,
     DiskPartition,
     HealthSnapshot,
     MemoryMetrics,
 )
+from src.reports.json_report import render_json
+from src.reports.markdown_report import render_markdown
 
 
 def _snapshot() -> HealthSnapshot:
